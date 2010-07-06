@@ -222,8 +222,6 @@ public class AccountActivity extends Activity {
                 }
                
             	
-                
-
                 if (mToAddress != null) {
                     intent.putExtra(ImApp.EXTRA_INTENT_SEND_TO_USER, mToAddress);
                 }
@@ -244,6 +242,9 @@ public class AccountActivity extends Activity {
         signUp.setMovementMethod(LinkMovementMethod.getInstance());
 
         updateWidgetState();
+        
+        String msg = "WARNING: This is an ALPHA release of OtrChat that may still include security holes or bugs. Experimental use only!";
+        Toast.makeText(AccountActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 
     void comfirmTermsOfUse(BrandingResources res, DialogInterface.OnClickListener accept) {

@@ -2,7 +2,6 @@ package org.gitian.android.im.plugin.xmpp;
 
 import info.guardianproject.otr.OtrChatManager;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +33,7 @@ import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -87,7 +87,7 @@ public class XmppConnection extends ImConnection {
 	}
 	
 	public void sendMessage(org.jivesoftware.smack.packet.Message msg) {
-		android.os.Debug.waitForDebugger();
+	//	android.os.Debug.waitForDebugger();
 
 		if (mOtrMgr != null && mOtrMgr.isEncryptedSession(msg.getFrom(),msg.getTo()))
 		{
@@ -237,7 +237,7 @@ public class XmppConnection extends ImConnection {
 
 	public void setProxy (String type, String host, int port)
 	{
-		android.os.Debug.waitForDebugger();
+	//	android.os.Debug.waitForDebugger();
 
 		if (type == null)
 		{
@@ -252,16 +252,42 @@ public class XmppConnection extends ImConnection {
 	
 	private void initConnection(String serverHost, String login, String password, String resource) throws XMPPException {
     	
-    	
+		android.os.Debug.waitForDebugger();
+
     	if (mProxyInfo == null)
     		 mProxyInfo = ProxyInfo.forNoProxy();
     	
     	
-    	mConfig = new ConnectionConfiguration(serverHost, mProxyInfo);
+    	if (serverHost.equals("gmail.com") || serverHost.equals("talk.google.com") || serverHost.equals("googlemail.com"))
+    	{
+    		mConfig = new ConnectionConfiguration("talk.google.com",5222,"gmail.com", mProxyInfo);
+    		 // You have to put this code before you login
+    	     SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+    	     mConfig.setSecurityMode(SecurityMode.required);
+    	     login = login + "@gmail.com";
+    	}
+    	else
+    	{
+    		
+    		//SASLAuthentication.supportSASLMechanism("DIGEST-MD5",0);
+    	//	SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+    		  
+    	    mConfig = new ConnectionConfiguration(serverHost, mProxyInfo);
+
+    		//mConfig = new ConnectionConfiguration(serverHost, 5223, serverHost, mProxyInfo);
+    		
+    		mConfig.setSecurityMode(SecurityMode.required);
+  		  
+//    		mConfig.setSASLAuthenticationEnabled(false);
+    		//mConfig.setCompressionEnabled(false);
+    		
+    //		mConfig.setSelfSignedCertificateEnabled(true);
+   // 		mConfig.setVerifyChainEnabled(false);
+   // 		mConfig.setVerifyRootCAEnabled(false);
+    		
+    	}
 
 		mConfig.setReconnectionAllowed(false);
-		
-		mConfig.setSecurityMode(SecurityMode.required);
 		
 		mConnection = new MyXMPPConnection(mConfig);
 		mChatListener = new XmppChatPacketListener(this);
@@ -355,7 +381,9 @@ public class XmppConnection extends ImConnection {
 				Log.i(TAG, "connection closed");
 			}
 		});
+        
         mConnection.login(login, password, resource);
+        
         org.jivesoftware.smack.packet.Presence presence = 
         	new org.jivesoftware.smack.packet.Presence(org.jivesoftware.smack.packet.Presence.Type.available);
         mConnection.sendPacket(presence);
@@ -556,7 +584,7 @@ public class XmppConnection extends ImConnection {
 	     */
 	    public boolean isEncryptedSession(String remoteAddress)
 	    {
-			android.os.Debug.waitForDebugger();
+		//	android.os.Debug.waitForDebugger();
 
 	    	if (mOtrMgr!=null)
 	    		return (mOtrMgr.isEncryptedSession(mUser.getAddress().getFullName(), remoteAddress));
@@ -622,8 +650,12 @@ public class XmppConnection extends ImConnection {
 					RosterEntry entry = iter.next();
 					String address = parseAddressBase(entry.getUser());
 					if (seen.add(address)) {
-						XmppAddress xaddress = new XmppAddress(entry.getName(), address);
-						Contact contact = new Contact(xaddress, entry.getName());
+						
+						String name = entry.getName();
+						if (name == null)
+							name = address;
+						XmppAddress xaddress = new XmppAddress(name, address);
+						Contact contact = new Contact(xaddress, name);
 						contacts.add(contact);
 					}
 					else {
