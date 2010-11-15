@@ -252,7 +252,7 @@ public class XmppConnection extends ImConnection {
 	
 	private void initConnection(String serverHost, String login, String password, String resource) throws XMPPException {
     	
-		android.os.Debug.waitForDebugger();
+		//Android.os.Debug.waitForDebugger();
 
     	if (mProxyInfo == null)
     		 mProxyInfo = ProxyInfo.forNoProxy();
