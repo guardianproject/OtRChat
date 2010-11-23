@@ -292,7 +292,7 @@ public class XmppConnection extends ImConnection {
     		
     	}
 
-		mConfig.setReconnectionAllowed(false);
+		mConfig.setReconnectionAllowed(true);
 		
 		mConnection = new MyXMPPConnection(mConfig);
 		mChatListener = new XmppChatPacketListener(this);
@@ -720,9 +720,15 @@ public class XmppConnection extends ImConnection {
 			
 			if (roster.getUnfiledEntryCount() > 0) {
 				
-				roster.createGroup("General");
+				String generalGroupName = "General";
+				
+				RosterGroup group = roster.getGroup(generalGroupName);
+				
+				if (group == null)
+					group = roster.createGroup(generalGroupName);
+				
 				Collection<Contact> contacts = fillContacts(roster.getUnfiledEntries().iterator(), null);
-				ContactList cl = new ContactList(mUser.getAddress(), "General" , true, contacts, this);
+				ContactList cl = new ContactList(mUser.getAddress(), generalGroupName , true, contacts, this);
 				
 				//n8fr8: adding this contact list to the master list manager seems like the righ thing to do
 				mContactLists.add(cl);
