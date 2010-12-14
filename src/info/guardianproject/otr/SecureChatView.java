@@ -1,6 +1,6 @@
 package info.guardianproject.otr;
 
-import org.gitian.android.im.app.ChatView;
+import info.guardianproject.otr.app.im.app.ChatView;
 
 import android.content.Context;
 import android.util.AttributeSet;
